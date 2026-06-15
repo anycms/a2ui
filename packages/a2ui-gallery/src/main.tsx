@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { A2uiSurface, basicReactComponents } from '@anycms/a2ui-react';
 import { shadcnReactComponents } from '@anycms/a2ui-react-shadcn';
+import { mountDomSurface, type DomSurfaceHandle } from '@anycms/a2ui-dom';
 import {
   MessageProcessor,
   basicCatalog,
@@ -60,8 +61,10 @@ function App() {
   const [, setTick] = useState(0);
   const rerender = () => setTick((t) => t + 1);
   const [step, setStep] = useState(0);
-  const [mode, setMode] = useState<'vanilla' | 'shadcn'>('vanilla');
+  const [mode, setMode] = useState<'vanilla' | 'shadcn' | 'dom'>('vanilla');
   const [selectedExample, setSelectedExample] = useState<number | null>(null);
+  // Host element for the framework-agnostic DOM renderer (mounts outside React).
+  const domHostRef = useRef<HTMLDivElement | null>(null);
   const [actions, setActions] = useState<A2uiClientAction[]>([]);
   // empty => relative "/agent-ui", served same-origin via the Vite dev proxy
   // (see vite.config.ts) to avoid CORS against the example 27 backend.
@@ -88,6 +91,15 @@ function App() {
     const sub = surface.dataModel.subscribe('/', rerender);
     return () => sub.unsubscribe();
   }, [surface]);
+
+  // Mount the framework-agnostic DOM renderer into a host element when selected.
+  // The same SurfaceModel drives it as the React renderers; it reacts to messages
+  // via its own subscriptions, so we only (re)mount on surface or mode change.
+  useEffect(() => {
+    if (mode !== 'dom' || !surface || !domHostRef.current) return;
+    const handle: DomSurfaceHandle = mountDomSurface(surface, domHostRef.current);
+    return () => handle.dispose();
+  }, [mode, surface]);
 
   const reset = () => {
     transportRef.current?.stop();
@@ -147,7 +159,11 @@ function App() {
             <button
               onClick={() => setMode('shadcn')}
               style={mode === 'shadcn' ? { fontWeight: 700 } : undefined}
-            >shadcn/ui</button>
+            >shadcn/ui</button>{' '}
+            <button
+              onClick={() => setMode('dom')}
+              style={mode === 'dom' ? { fontWeight: 700 } : undefined}
+            >DOM (no React)</button>
           </fieldset>
           <fieldset>
             <legend>Offline examples</legend>
@@ -185,10 +201,15 @@ function App() {
           <h2>Surface</h2>
           <div className={mode === 'shadcn' ? 'surface-pane a2ui-dark' : 'surface-pane'}>
             {surface ? (
-              <A2uiSurface
-                surface={surface}
-                registry={mode === 'shadcn' ? shadcnReactComponents : basicReactComponents}
-              />
+              mode === 'dom' ? (
+                // The DOM renderer mounts itself into this host via the effect above.
+                <div ref={domHostRef} />
+              ) : (
+                <A2uiSurface
+                  surface={surface}
+                  registry={mode === 'shadcn' ? shadcnReactComponents : basicReactComponents}
+                />
+              )
             ) : (
               <p className="muted">(no surface — Advance or Connect)</p>
             )}

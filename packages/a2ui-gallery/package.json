@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@anycms/a2ui-core": "workspace:*",
+    "@anycms/a2ui-dom": "workspace:*",
     "@anycms/a2ui-react": "workspace:*",
     "@anycms/a2ui-react-shadcn": "workspace:*",
     "@anycms/a2ui-transport-sse": "workspace:*",
