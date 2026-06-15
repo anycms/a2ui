@@ -31,11 +31,30 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(jsdom@25.0.1)(lightningcss@1.32.0)
 
+  packages/a2ui-dom:
+    dependencies:
+      '@anycms/a2ui-core':
+        specifier: workspace:*
+        version: link:../a2ui-core
+    devDependencies:
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.1(jiti@2.7.0)(postcss@8.5.15)(typescript@5.9.3)
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(jsdom@25.0.1)(lightningcss@1.32.0)
+
   packages/a2ui-gallery:
     dependencies:
       '@anycms/a2ui-core':
         specifier: workspace:*
         version: link:../a2ui-core
+      '@anycms/a2ui-dom':
+        specifier: workspace:*
+        version: link:../a2ui-dom
       '@anycms/a2ui-react':
         specifier: workspace:*
         version: link:../a2ui-react
