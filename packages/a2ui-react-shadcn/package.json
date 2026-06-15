@@ -1,6 +1,6 @@
 {
   "name": "@anycms/a2ui-react-shadcn",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "shadcn/ui + Tailwind CSS renderer preset for A2UI v1.0 (drop-in ReactComponentRegistry).",
   "license": "MIT",
   "author": "Liangdi <wu@liangdi.me>",

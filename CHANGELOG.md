@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.1.1] - 2026-06-15
 
 ### 📚 Documentation
 
@@ -8,3 +8,4 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Initial import — A2UI frontend (spec + TS renderer packages)
+- *(release)* Add release-it + git-cliff version management

@@ -1,6 +1,6 @@
 {
   "name": "@anycms/a2ui-transport-sse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SSE transport adapter for A2UI v1.0 (connects to the anycms-agent example 27 backend).",
   "license": "MIT",
   "author": "Liangdi <wu@liangdi.me>",

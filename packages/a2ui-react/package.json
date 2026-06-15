@@ -1,6 +1,6 @@
 {
   "name": "@anycms/a2ui-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React renderer for A2UI v1.0.",
   "license": "MIT",
   "author": "Liangdi <wu@liangdi.me>",

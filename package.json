@@ -1,7 +1,7 @@
 {
   "name": "a2ui-renderer-workspace",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A2UI v1.0 TypeScript renderer libraries (framework-agnostic core + React + SSE transport + gallery).",
   "license": "MIT",
   "author": "Liangdi <wu@liangdi.me>",
