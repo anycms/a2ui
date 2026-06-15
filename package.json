@@ -20,9 +20,13 @@
     "typecheck": "pnpm -r run typecheck",
     "dev": "pnpm -C packages/a2ui-gallery dev",
     "clean": "pnpm -r exec rm -rf dist .tsbuildinfo node_modules/.cache",
-    "release": "pnpm -r run build && pnpm -r publish --access public --no-git-checks --registry https://registry.npmjs.org/"
+    "release": "release-it",
+    "release:dry": "release-it --dry-run",
+    "publish:npm": "pnpm -r run build && pnpm -r publish --access public --no-git-checks --registry https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@release-it/bumper": "^7.0.6",
+    "release-it": "^20.2.0",
     "typescript": "5.9.3"
   },
   "engines": {

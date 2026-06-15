@@ -1,0 +1,35 @@
+{
+  "$schema": "https://unpkg.com/release-it@20/schema/release-it.json",
+  "git": {
+    "requireBranch": "master",
+    "requireCleanWorkingDir": true,
+    "commitMessage": "chore(release): ${version}",
+    "tagName": "v${version}",
+    "commit": true,
+    "tag": true,
+    "push": true
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": false
+  },
+  "hooks": {
+    "after:bump": "git cliff --tag ${tagName} --output CHANGELOG.md && git add CHANGELOG.md"
+  },
+  "plugins": {
+    "@release-it/bumper": {
+      "in": {
+        "file": "packages/a2ui-core/package.json",
+        "type": "json:/version"
+      },
+      "out": [
+        { "file": "packages/a2ui-core/package.json", "type": "json:/version" },
+        { "file": "packages/a2ui-react/package.json", "type": "json:/version" },
+        { "file": "packages/a2ui-react-shadcn/package.json", "type": "json:/version" },
+        { "file": "packages/a2ui-transport-sse/package.json", "type": "json:/version" }
+      ]
+    }
+  }
+}
