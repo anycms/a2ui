@@ -1,0 +1,56 @@
+{
+  "name": "@anycms/a2ui-core",
+  "version": "0.1.0",
+  "description": "A2UI v1.0 framework-agnostic core: reactive primitives, JSON Pointer, data model, state models, message processor, catalog, basic functions.",
+  "license": "MIT",
+  "author": "Liangdi <wu@liangdi.me>",
+  "homepage": "https://github.com/anycms/a2ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anycms/a2ui.git",
+    "directory": "packages/a2ui-core"
+  },
+  "bugs": {
+    "url": "https://github.com/anycms/a2ui/issues"
+  },
+  "keywords": [
+    "a2ui",
+    "anycms",
+    "generative-ui",
+    "reactive",
+    "ai-ui",
+    "json-pointer"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "vitest": "^2.1.8"
+  }
+}

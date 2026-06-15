@@ -1,0 +1,40 @@
+{
+  "name": "@anycms/a2ui-gallery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive gallery / dev sandbox for the A2UI v1.0 renderer packages.",
+  "license": "MIT",
+  "author": "Liangdi <wu@liangdi.me>",
+  "homepage": "https://github.com/anycms/a2ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anycms/a2ui.git",
+    "directory": "packages/a2ui-gallery"
+  },
+  "bugs": {
+    "url": "https://github.com/anycms/a2ui/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anycms/a2ui-core": "workspace:*",
+    "@anycms/a2ui-react": "workspace:*",
+    "@anycms/a2ui-react-shadcn": "workspace:*",
+    "@anycms/a2ui-transport-sse": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "vite": "^5.4.11"
+  }
+}
