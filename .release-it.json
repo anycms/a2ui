@@ -26,6 +26,7 @@
       },
       "out": [
         { "file": "packages/a2ui-core/package.json", "type": "json:/version" },
+        { "file": "packages/a2ui-dom/package.json", "type": "json:/version" },
         { "file": "packages/a2ui-react/package.json", "type": "json:/version" },
         { "file": "packages/a2ui-react-shadcn/package.json", "type": "json:/version" },
         { "file": "packages/a2ui-transport-sse/package.json", "type": "json:/version" }
