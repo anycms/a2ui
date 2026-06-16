@@ -69,6 +69,47 @@ export function dispatchButtonAction(ctx: ComponentContext, action: ButtonAction
   }
 }
 
+/** First failing check's message, or null if there is none. Mirrors React presets. */
+export function firstErrorMessage(
+  checks: ReadonlyArray<{ valid: boolean; message: string }> | undefined,
+): string | null {
+  return checks?.find((c) => !c.valid && c.message)?.message ?? null;
+}
+
+/**
+ * Create a hidden error element for surfacing the first failing check message.
+ * Shared by all input leaves (TextField, CheckBox, Slider, ChoicePicker,
+ * DateTimeInput). Initially hidden (`display: 'none'`); the owning View toggles
+ * it via {@link applyCheckError}.
+ */
+export function createCheckErrorEl(): HTMLDivElement {
+  const el = document.createElement('div');
+  el.className = 'a2ui-check-error';
+  el.style.color = '#dc2626';
+  el.style.fontSize = '0.8em';
+  el.style.marginTop = '2px';
+  el.style.display = 'none';
+  return el;
+}
+
+/**
+ * Show/hide a {@link createCheckErrorEl} from a component's resolved checks.
+ * Pass the props; this reads `checks` and applies the first error message.
+ */
+export function applyCheckError(
+  el: HTMLDivElement,
+  checks: ReadonlyArray<{ valid: boolean; message: string }> | undefined,
+): void {
+  const msg = firstErrorMessage(checks);
+  if (msg) {
+    el.style.display = 'block';
+    el.textContent = msg;
+  } else {
+    el.style.display = 'none';
+    el.textContent = '';
+  }
+}
+
 /** Apply a Button variant as inline styles. Mirrors React's `buttonVariantStyle`. */
 export function applyButtonVariant(el: HTMLElement, variant: string): void {
   if (variant === 'primary') {

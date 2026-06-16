@@ -220,6 +220,19 @@ export function ModalView({ props, buildChild }: ComponentViewProps<ModalProps>)
 }
 
 // --- interactive / inputs ---
+
+/** First failing check message, or null when checks are absent/valid. */
+function firstErrorMessage(checks: { valid: boolean; message: string }[] | undefined): string | null {
+  return checks?.find((c) => !c.valid && c.message)?.message ?? null;
+}
+
+const ERROR_MESSAGE_STYLE: CSSProperties = {
+  color: '#dc2626',
+  fontSize: '0.8em',
+  marginTop: 2,
+  display: 'block',
+};
+
 function buttonVariantStyle(variant: string): CSSProperties {
   if (variant === 'primary') return { background: '#2563eb', color: '#fff', border: 'none' };
   if (variant === 'borderless') return { background: 'transparent', border: 'none', color: '#2563eb' };
@@ -254,11 +267,15 @@ export function CheckBoxView({ props, ctx }: ComponentViewProps<CheckBoxProps>):
     const p = boundPath(ctx);
     if (p) ctx.set(p, e.currentTarget.checked);
   };
+  const error = firstErrorMessage(props.checks);
   return (
-    <label className="a2ui-leaf" style={{ ...LEAF, display: 'flex', alignItems: 'center', gap: 6 }}>
-      <input type="checkbox" checked={props.value} onChange={onChange} />
-      <span>{props.label}</span>
-    </label>
+    <>
+      <label className="a2ui-leaf" style={{ ...LEAF, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <input type="checkbox" checked={props.value} onChange={onChange} />
+        <span>{props.label}</span>
+      </label>
+      {error && <div style={ERROR_MESSAGE_STYLE}>{error}</div>}
+    </>
   );
 }
 
@@ -271,10 +288,21 @@ export function TextFieldView({ props, ctx }: ComponentViewProps<TextFieldProps>
     if (p) ctx.set(p, e.currentTarget.value);
   };
   const common = { value: props.value, onChange, placeholder: props.label };
+  const error = firstErrorMessage(props.checks);
   if (props.variant === 'longText') {
-    return <textarea {...common} className="a2ui-leaf" style={{ ...LEAF, width: '100%', minHeight: 80 }} />;
+    return (
+      <>
+        <textarea {...common} className="a2ui-leaf" style={{ ...LEAF, width: '100%', minHeight: 80 }} />
+        {error && <div style={ERROR_MESSAGE_STYLE}>{error}</div>}
+      </>
+    );
   }
-  return <input type={TEXTFIELD_TYPE[props.variant] ?? 'text'} {...common} className="a2ui-leaf" style={{ ...LEAF }} />;
+  return (
+    <>
+      <input type={TEXTFIELD_TYPE[props.variant] ?? 'text'} {...common} className="a2ui-leaf" style={{ ...LEAF }} />
+      {error && <div style={ERROR_MESSAGE_STYLE}>{error}</div>}
+    </>
+  );
 }
 
 export function DateTimeInputView({ props, ctx }: ComponentViewProps<DateTimeInputProps>): ReactNode {
@@ -283,7 +311,13 @@ export function DateTimeInputView({ props, ctx }: ComponentViewProps<DateTimeInp
     const p = boundPath(ctx);
     if (p) ctx.set(p, e.currentTarget.value);
   };
-  return <input type={type} value={props.value} onChange={onChange} className="a2ui-leaf" style={LEAF} />;
+  const error = firstErrorMessage(props.checks);
+  return (
+    <>
+      <input type={type} value={props.value} onChange={onChange} className="a2ui-leaf" style={LEAF} />
+      {error && <div style={ERROR_MESSAGE_STYLE}>{error}</div>}
+    </>
+  );
 }
 
 export function ChoicePickerView({ props, ctx }: ComponentViewProps<ChoicePickerProps>): ReactNode {
@@ -298,18 +332,22 @@ export function ChoicePickerView({ props, ctx }: ComponentViewProps<ChoicePicker
       ctx.set(p, checked ? [...cur, value] : cur.filter((v) => v !== value));
     }
   };
+  const error = firstErrorMessage(props.checks);
   return (
-    <div className="a2ui-leaf" style={{ ...LEAF, display: 'flex', flexWrap: 'wrap', gap: props.displayStyle === 'chips' ? 6 : 2 }}>
-      {props.options.map((o) => {
-        const selected = exclusive ? props.value[0] === o.value : props.value.includes(o.value);
-        return (
-          <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <input type={exclusive ? 'radio' : 'checkbox'} checked={selected} onChange={(e) => toggle(o.value, e.currentTarget.checked)} />
-            <span>{o.label}</span>
-          </label>
-        );
-      })}
-    </div>
+    <>
+      <div className="a2ui-leaf" style={{ ...LEAF, display: 'flex', flexWrap: 'wrap', gap: props.displayStyle === 'chips' ? 6 : 2 }}>
+        {props.options.map((o) => {
+          const selected = exclusive ? props.value[0] === o.value : props.value.includes(o.value);
+          return (
+            <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <input type={exclusive ? 'radio' : 'checkbox'} checked={selected} onChange={(e) => toggle(o.value, e.currentTarget.checked)} />
+              <span>{o.label}</span>
+            </label>
+          );
+        })}
+      </div>
+      {error && <div style={ERROR_MESSAGE_STYLE}>{error}</div>}
+    </>
   );
 }
 
@@ -318,10 +356,14 @@ export function SliderView({ props, ctx }: ComponentViewProps<SliderProps>): Rea
     const p = boundPath(ctx);
     if (p) ctx.set(p, e.currentTarget.valueAsNumber);
   };
+  const error = firstErrorMessage(props.checks);
   return (
-    <label className="a2ui-leaf" style={{ ...LEAF, display: 'flex', alignItems: 'center', gap: 8 }}>
-      <input type="range" min={props.min} max={props.max} value={props.value} onChange={onChange} />
-      <span>{props.value}</span>
-    </label>
+    <>
+      <label className="a2ui-leaf" style={{ ...LEAF, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <input type="range" min={props.min} max={props.max} value={props.value} onChange={onChange} />
+        <span>{props.value}</span>
+      </label>
+      {error && <div style={ERROR_MESSAGE_STYLE}>{error}</div>}
+    </>
   );
 }

@@ -181,9 +181,16 @@ propagates reactively).
 
 **Checks / validation state** (Button, TextField, CheckBox, …). A `checks`
 array of `{ condition, message }` is evaluated by `resolveChecks` in the binder;
-`Button` derives `disabled` from "any check invalid". Surface failing messages
-in the View (e.g. under a TextField). The condition is a `DynamicBoolean` —
-commonly a function call like `{ call: 'required', args: { value: { path: '/x' } } }`.
+each rule becomes `{ valid, message }`. `Button` derives `disabled` from "any
+check invalid" and shows no message (the disabled state is enough). The five
+text inputs — **TextField, CheckBox, Slider, ChoicePicker, DateTimeInput** —
+also surface the **first failing check's `message`** directly under the control,
+via a shared `firstErrorMessage(checks)` helper (first `!valid && message`).
+Styling: the vanilla adapters (react/vue/angular/dom) render a red (`#dc2626`,
+`0.8em`) message node; shadcn uses the `text-destructive` token class (no
+hardcoded color — see [theming.md](./theming.md)). Mirror this when adding a new
+interactive component. The condition is a `DynamicBoolean` — commonly a function
+call like `{ call: 'required', args: { value: { path: '/x' } } }`.
 
 ## D. Verifying your change
 

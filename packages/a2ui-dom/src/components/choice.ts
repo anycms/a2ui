@@ -1,6 +1,6 @@
 import type { ChoicePickerProps } from '@anycms/a2ui-core';
 import type { DomNodeMount, DomView, DomViewContext } from '../types';
-import { LEAF_MARGIN, boundPath } from '../helpers';
+import { LEAF_MARGIN, boundPath, applyCheckError, createCheckErrorEl } from '../helpers';
 
 /**
  * ChoicePicker leaf: a flex-wrap row of `<label>` options, each an `<input>`
@@ -65,13 +65,26 @@ export const choicePickerView: DomView<ChoicePickerProps> = {
       el.style.gap = displayStyle === 'chips' ? '6px' : '2px';
     };
 
+    // Persistent error element (kept separate from the option labels so that
+    // `renderAll` can rebuild labels without dropping it).
+    const errorEl = createCheckErrorEl();
+    errorEl.style.flexBasis = '100%';
+
     const renderAll = (): void => {
-      el.innerHTML = '';
-      for (const o of options) el.appendChild(buildLabel(o));
+      // Remove only the option labels, preserving the error element.
+      for (const node of Array.from(el.children)) {
+        if (node !== errorEl) el.removeChild(node);
+      }
+      // Re-insert labels before the error element so it stays at the bottom.
+      for (const o of options) el.insertBefore(buildLabel(o), errorEl);
     };
 
     applyGap();
+    // errorEl must be a child of `el` before the first renderAll, since
+    // renderAll re-inserts labels before it to keep it at the bottom.
+    el.appendChild(errorEl);
     renderAll();
+    applyCheckError(errorEl, props.checks);
 
     return {
       element: el,
@@ -107,6 +120,8 @@ export const choicePickerView: DomView<ChoicePickerProps> = {
           displayStyle = p.displayStyle;
           applyGap();
         }
+
+        applyCheckError(errorEl, p.checks);
       },
       dispose(): void {
         /* leaf: onchange dies with the elements */

@@ -1,6 +1,6 @@
 import type { SliderProps } from '@anycms/a2ui-core';
 import type { DomNodeMount, DomView, DomViewContext } from '../types';
-import { boundPath, LEAF_MARGIN } from '../helpers';
+import { boundPath, LEAF_MARGIN, applyCheckError, createCheckErrorEl } from '../helpers';
 
 /**
  * Slider leaf: `<label.a2ui-leaf>` wrapping a native range input + a value
@@ -14,15 +14,20 @@ export const sliderView: DomView<SliderProps> = {
     label.style.margin = `${LEAF_MARGIN}px`;
     label.style.display = 'flex';
     label.style.alignItems = 'center';
+    label.style.flexWrap = 'wrap';
     label.style.gap = '8px';
 
     const input = document.createElement('input');
     input.type = 'range';
 
     const span = document.createElement('span');
+    const errorEl = createCheckErrorEl();
+    // Full-width so the error wraps below the slider+value row.
+    errorEl.style.flexBasis = '100%';
 
     label.appendChild(input);
     label.appendChild(span);
+    label.appendChild(errorEl);
 
     const apply = (p: SliderProps): void => {
       input.min = String(p.min);
@@ -31,6 +36,7 @@ export const sliderView: DomView<SliderProps> = {
         input.value = String(p.value);
       }
       span.textContent = String(p.value);
+      applyCheckError(errorEl, p.checks);
     };
 
     apply(props);

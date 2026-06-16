@@ -58,6 +58,11 @@ function boundPath(ctx: ComponentContext, key = 'value'): string | null {
   return null;
 }
 
+/** First failing check message, or null when checks are absent/valid. */
+function firstErrorMessage(checks: { valid: boolean; message: string }[] | undefined): string | null {
+  return checks?.find((c) => !c.valid && c.message)?.message ?? null;
+}
+
 /** Button action payload — mirrors the React/Vue reference ButtonView handler. */
 export type ButtonAction =
   | { event?: { name: string; context?: Record<string, unknown> } }
@@ -370,11 +375,15 @@ export class ButtonViewComponent {
       <input type="checkbox" [checked]="props()?.value" (change)="onChange($event)" />
       <span>{{ props()?.label ?? '' }}</span>
     </label>
+    @if (firstError(); as err) {
+      <div class="a2ui-check-error" [style.color]="'#dc2626'" [style.fontSize]="'0.8em'" [style.marginTop]="'2px'">{{ err }}</div>
+    }
   `,
 })
 export class CheckBoxViewComponent {
   readonly props = input<CheckBoxProps>();
   readonly ctx = input<ComponentContext>();
+  readonly firstError = computed(() => firstErrorMessage(this.props()?.checks));
   onChange(e: Event): void {
     const ctx = this.ctx();
     if (!ctx) return;
@@ -393,12 +402,16 @@ export class CheckBoxViewComponent {
       <input class="a2ui-leaf" [type]="type()" [value]="props()?.value" [placeholder]="props()?.label ?? ''"
         (input)="onInput($event)" [style]="{ margin: '8px' }" />
     }
+    @if (firstError(); as err) {
+      <div class="a2ui-check-error" [style.color]="'#dc2626'" [style.fontSize]="'0.8em'" [style.marginTop]="'2px'">{{ err }}</div>
+    }
   `,
 })
 export class TextFieldViewComponent {
   readonly props = input<TextFieldProps>();
   readonly ctx = input<ComponentContext>();
   readonly type = computed(() => TEXTFIELD_TYPE[this.props()?.variant ?? 'shortText'] ?? 'text');
+  readonly firstError = computed(() => firstErrorMessage(this.props()?.checks));
   onInput(e: Event): void {
     const ctx = this.ctx();
     if (!ctx) return;
@@ -409,7 +422,12 @@ export class TextFieldViewComponent {
 
 @Component({
   selector: 'a2ui-date-time',
-  template: `<input class="a2ui-leaf" [type]="type()" [value]="props()?.value" (change)="onChange($event)" [style]="{ margin: '8px' }" />`,
+  template: `
+    <input class="a2ui-leaf" [type]="type()" [value]="props()?.value" (change)="onChange($event)" [style]="{ margin: '8px' }" />
+    @if (firstError(); as err) {
+      <div class="a2ui-check-error" [style.color]="'#dc2626'" [style.fontSize]="'0.8em'" [style.marginTop]="'2px'">{{ err }}</div>
+    }
+  `,
 })
 export class DateTimeInputViewComponent {
   readonly props = input<DateTimeInputProps>();
@@ -419,6 +437,7 @@ export class DateTimeInputViewComponent {
     if (!p) return 'text';
     return p.enableDate && p.enableTime ? 'datetime-local' : p.enableDate ? 'date' : 'time';
   });
+  readonly firstError = computed(() => firstErrorMessage(this.props()?.checks));
   onChange(e: Event): void {
     const ctx = this.ctx();
     if (!ctx) return;
@@ -439,12 +458,16 @@ export class DateTimeInputViewComponent {
         </label>
       }
     </div>
+    @if (firstError(); as err) {
+      <div class="a2ui-check-error" [style.color]="'#dc2626'" [style.fontSize]="'0.8em'" [style.marginTop]="'2px'">{{ err }}</div>
+    }
   `,
 })
 export class ChoicePickerViewComponent {
   readonly props = input<ChoicePickerProps>();
   readonly ctx = input<ComponentContext>();
   readonly exclusive = computed(() => this.props()?.variant === 'mutuallyExclusive');
+  readonly firstError = computed(() => firstErrorMessage(this.props()?.checks));
   readonly style = computed(() => ({
     margin: '8px',
     display: 'flex',
@@ -479,11 +502,15 @@ export class ChoicePickerViewComponent {
       <input type="range" [min]="props()?.min" [max]="props()?.max" [value]="props()?.value" (input)="onInput($event)" />
       <span>{{ props()?.value }}</span>
     </label>
+    @if (firstError(); as err) {
+      <div class="a2ui-check-error" [style.color]="'#dc2626'" [style.fontSize]="'0.8em'" [style.marginTop]="'2px'">{{ err }}</div>
+    }
   `,
 })
 export class SliderViewComponent {
   readonly props = input<SliderProps>();
   readonly ctx = input<ComponentContext>();
+  readonly firstError = computed(() => firstErrorMessage(this.props()?.checks));
   onInput(e: Event): void {
     const ctx = this.ctx();
     if (!ctx) return;

@@ -1,6 +1,6 @@
 import type { TextFieldProps } from '@anycms/a2ui-core';
 import type { DomNodeMount, DomView, DomViewContext } from '../types';
-import { LEAF_MARGIN, TEXTFIELD_TYPE, boundPath } from '../helpers';
+import { LEAF_MARGIN, TEXTFIELD_TYPE, boundPath, applyCheckError, createCheckErrorEl } from '../helpers';
 
 /**
  * TextField leaf. Because `variant` can switch `<input>` <-> `<textarea>` and a
@@ -43,7 +43,10 @@ export const textFieldView: DomView<TextFieldProps> = {
     // `variant` to mirror the contract and aid debugging.
     let variant: string = props.variant;
     void variant;
+    const errorEl = createCheckErrorEl();
     wrapper.appendChild(control);
+    wrapper.appendChild(errorEl);
+    applyCheckError(errorEl, props.checks);
 
     return {
       element: wrapper,
@@ -59,6 +62,7 @@ export const textFieldView: DomView<TextFieldProps> = {
           // Fresh control: set value/placeholder unconditionally.
           control.value = p.value;
           control.placeholder = p.label ?? '';
+          applyCheckError(errorEl, p.checks);
           return;
         }
         // Focus guard: don't disrupt an actively-edited field.
@@ -67,6 +71,7 @@ export const textFieldView: DomView<TextFieldProps> = {
         }
         control.placeholder = p.label ?? '';
         variant = p.variant;
+        applyCheckError(errorEl, p.checks);
       },
       dispose(): void {
         /* leaf: no listeners beyond oninput, which dies with the element */

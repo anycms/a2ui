@@ -97,6 +97,31 @@ describe('reactivity', () => {
   });
 });
 
+describe('check error messages', () => {
+  it('renders the first failing check message below a TextField', () => {
+    const mp = setup([
+      { version: 'v1.0', createSurface: { surfaceId: 's', catalogId: basicCatalogId, dataModel: { name: '' } } },
+      {
+        version: 'v1.0',
+        updateComponents: {
+          surfaceId: 's',
+          components: [
+            {
+              id: 'root',
+              component: 'TextField',
+              label: 'Name',
+              value: { path: '/name' },
+              checks: [{ condition: false, message: 'Name is required' }],
+            },
+          ],
+        },
+      },
+    ]);
+    renderShadcn(mp.model.get('s'));
+    expect(screen.getByText('Name is required')).toBeTruthy();
+  });
+});
+
 describe('action context scoping (List template)', () => {
   it('a button click inside a list template dispatches scoped context', () => {
     const actions: Array<{ name: string; context: Record<string, unknown> }> = [];

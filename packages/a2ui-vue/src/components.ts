@@ -48,6 +48,18 @@ const TEXTFIELD_TYPE: Record<string, string> = {
   shortText: 'text', longText: 'text', number: 'number', obscured: 'password',
 };
 
+/** Shared error-message style for failed check hints (vanilla renderer). */
+const ERROR_MESSAGE_STYLE: Record<string, string> = {
+  color: '#dc2626',
+  fontSize: '0.8em',
+  marginTop: '2px',
+};
+
+/** First failing check message, or null when checks are absent/valid. */
+function firstErrorMessage(checks: { valid: boolean; message: string }[] | undefined): string | null {
+  return checks?.find((c) => !c.valid && c.message)?.message ?? null;
+}
+
 /** Extract a bound {path} from a component property (for two-way binding). */
 function boundPath(ctx: ComponentContext, key = 'value'): string | null {
   const v = ctx.componentModel.properties[key];
@@ -285,10 +297,14 @@ export const CheckBoxView = ({ props, ctx }: ComponentViewProps<CheckBoxProps>):
     const path = boundPath(ctx);
     if (path) ctx.set(path, (e.currentTarget as HTMLInputElement).checked);
   };
-  return h('label', { class: 'a2ui-leaf', style: { ...LEAF, display: 'flex', alignItems: 'center', gap: '6px' } }, [
-    h('input', { type: 'checkbox', checked: props.value, onChange }),
-    h('span', {}, [props.label ?? '']),
-  ]);
+  const error = firstErrorMessage(props.checks);
+  return [
+    h('label', { class: 'a2ui-leaf', style: { ...LEAF, display: 'flex', alignItems: 'center', gap: '6px' } }, [
+      h('input', { type: 'checkbox', checked: props.value, onChange }),
+      h('span', {}, [props.label ?? '']),
+    ]),
+    error ? h('div', { class: 'a2ui-check-error', style: ERROR_MESSAGE_STYLE }, [error]) : null,
+  ];
 };
 
 export const TextFieldView = ({ props, ctx }: ComponentViewProps<TextFieldProps>): VNodeChild => {
@@ -297,10 +313,17 @@ export const TextFieldView = ({ props, ctx }: ComponentViewProps<TextFieldProps>
     if (path) ctx.set(path, (e.currentTarget as HTMLInputElement | HTMLTextAreaElement).value);
   };
   const common = { value: props.value, onInput, placeholder: props.label ?? '' };
+  const error = firstErrorMessage(props.checks);
   if (props.variant === 'longText') {
-    return h('textarea', { class: 'a2ui-leaf', ...common, style: { ...LEAF, width: '100%', minHeight: '80px' } });
+    return [
+      h('textarea', { class: 'a2ui-leaf', ...common, style: { ...LEAF, width: '100%', minHeight: '80px' } }),
+      error ? h('div', { class: 'a2ui-check-error', style: ERROR_MESSAGE_STYLE }, [error]) : null,
+    ];
   }
-  return h('input', { class: 'a2ui-leaf', type: TEXTFIELD_TYPE[props.variant] ?? 'text', ...common, style: { ...LEAF } });
+  return [
+    h('input', { class: 'a2ui-leaf', type: TEXTFIELD_TYPE[props.variant] ?? 'text', ...common, style: { ...LEAF } }),
+    error ? h('div', { class: 'a2ui-check-error', style: ERROR_MESSAGE_STYLE }, [error]) : null,
+  ];
 };
 
 export const DateTimeInputView = ({ props, ctx }: ComponentViewProps<DateTimeInputProps>): VNodeChild => {
@@ -309,7 +332,11 @@ export const DateTimeInputView = ({ props, ctx }: ComponentViewProps<DateTimeInp
     const path = boundPath(ctx);
     if (path) ctx.set(path, (e.currentTarget as HTMLInputElement).value);
   };
-  return h('input', { class: 'a2ui-leaf', type, value: props.value, onChange, style: LEAF });
+  const error = firstErrorMessage(props.checks);
+  return [
+    h('input', { class: 'a2ui-leaf', type, value: props.value, onChange, style: LEAF }),
+    error ? h('div', { class: 'a2ui-check-error', style: ERROR_MESSAGE_STYLE }, [error]) : null,
+  ];
 };
 
 export const ChoicePickerView = ({ props, ctx }: ComponentViewProps<ChoicePickerProps>): VNodeChild => {
@@ -324,20 +351,24 @@ export const ChoicePickerView = ({ props, ctx }: ComponentViewProps<ChoicePicker
       ctx.set(path, checked ? [...cur, value] : cur.filter((v) => v !== value));
     }
   };
-  return h('div', {
-    class: 'a2ui-leaf',
-    style: { ...LEAF, display: 'flex', flexWrap: 'wrap', gap: props.displayStyle === 'chips' ? '6px' : '2px' },
-  }, props.options.map((o) => {
-    const selected = exclusive ? props.value[0] === o.value : props.value.includes(o.value);
-    return h('label', { key: o.value, style: { display: 'flex', alignItems: 'center', gap: '4px' } }, [
-      h('input', {
-        type: exclusive ? 'radio' : 'checkbox',
-        checked: selected,
-        onChange: (e: Event) => toggle(o.value, (e.currentTarget as HTMLInputElement).checked),
-      }),
-      h('span', {}, [o.label]),
-    ]);
-  }));
+  const error = firstErrorMessage(props.checks);
+  return [
+    h('div', {
+      class: 'a2ui-leaf',
+      style: { ...LEAF, display: 'flex', flexWrap: 'wrap', gap: props.displayStyle === 'chips' ? '6px' : '2px' },
+    }, props.options.map((o) => {
+      const selected = exclusive ? props.value[0] === o.value : props.value.includes(o.value);
+      return h('label', { key: o.value, style: { display: 'flex', alignItems: 'center', gap: '4px' } }, [
+        h('input', {
+          type: exclusive ? 'radio' : 'checkbox',
+          checked: selected,
+          onChange: (e: Event) => toggle(o.value, (e.currentTarget as HTMLInputElement).checked),
+        }),
+        h('span', {}, [o.label]),
+      ]);
+    })),
+    error ? h('div', { class: 'a2ui-check-error', style: ERROR_MESSAGE_STYLE }, [error]) : null,
+  ];
 };
 
 export const SliderView = ({ props, ctx }: ComponentViewProps<SliderProps>): VNodeChild => {
@@ -345,8 +376,12 @@ export const SliderView = ({ props, ctx }: ComponentViewProps<SliderProps>): VNo
     const path = boundPath(ctx);
     if (path) ctx.set(path, (e.currentTarget as HTMLInputElement).valueAsNumber);
   };
-  return h('label', { class: 'a2ui-leaf', style: { ...LEAF, display: 'flex', alignItems: 'center', gap: '8px' } }, [
-    h('input', { type: 'range', min: String(props.min), max: String(props.max), value: props.value, onInput }),
-    h('span', {}, [String(props.value)]),
-  ]);
+  const error = firstErrorMessage(props.checks);
+  return [
+    h('label', { class: 'a2ui-leaf', style: { ...LEAF, display: 'flex', alignItems: 'center', gap: '8px' } }, [
+      h('input', { type: 'range', min: String(props.min), max: String(props.max), value: props.value, onInput }),
+      h('span', {}, [String(props.value)]),
+    ]),
+    error ? h('div', { class: 'a2ui-check-error', style: ERROR_MESSAGE_STYLE }, [error]) : null,
+  ];
 };

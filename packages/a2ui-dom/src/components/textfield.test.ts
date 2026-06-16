@@ -179,4 +179,88 @@ describe('TextField (dom)', () => {
     expect(wrapperAfter).toBe(wrapperBefore);
     expect(wrapperAfter.querySelector('input')!.value).toBe('second');
   });
+
+  it('shows the first failing check message', () => {
+    const mp = setup([
+      {
+        version: 'v1.0',
+        createSurface: {
+          surfaceId: 's',
+          catalogId: basicCatalogId,
+          dataModel: { name: '' },
+        },
+      },
+      {
+        version: 'v1.0',
+        updateComponents: {
+          surfaceId: 's',
+          components: [
+            {
+              id: 'root',
+              component: 'TextField',
+              value: { path: '/name' },
+              label: 'Name',
+              // a check whose condition resolves to false surfaces its message
+              checks: [{ condition: false, message: 'Required' }],
+            },
+          ],
+        },
+      },
+    ]);
+    const surface = mp.model.get('s')!;
+    const { host } = mount(surface, {
+      TextField: createDomComponent(textFieldBinder, textFieldView),
+    });
+
+    const wrapper = host.querySelector<HTMLElement>('.a2ui-leaf')!;
+    const error = wrapper.querySelector<HTMLElement>('.a2ui-check-error')!;
+    expect(error).toBeTruthy();
+    // The failing message is rendered and the element is shown.
+    expect(error.style.display).toBe('block');
+    expect(wrapper.textContent).toContain('Required');
+    expect(error.textContent).toBe('Required');
+    expect(error.style.color).toBe('rgb(220, 38, 38)');
+    expect(error.style.fontSize).toBe('0.8em');
+    expect(error.style.marginTop).toBe('2px');
+  });
+
+  it('hides the check error when all checks pass', () => {
+    const mp = setup([
+      {
+        version: 'v1.0',
+        createSurface: {
+          surfaceId: 's',
+          catalogId: basicCatalogId,
+          dataModel: { name: 'ok' },
+        },
+      },
+      {
+        version: 'v1.0',
+        updateComponents: {
+          surfaceId: 's',
+          components: [
+            {
+              id: 'root',
+              component: 'TextField',
+              value: { path: '/name' },
+              label: 'Name',
+              checks: [{ condition: true, message: 'Required' }],
+            },
+          ],
+        },
+      },
+    ]);
+    const surface = mp.model.get('s')!;
+    const { host } = mount(surface, {
+      TextField: createDomComponent(textFieldBinder, textFieldView),
+    });
+
+    const wrapper = host.querySelector<HTMLElement>('.a2ui-leaf')!;
+    const error = wrapper.querySelector<HTMLElement>('.a2ui-check-error')!;
+    expect(error).toBeTruthy();
+    // Passing check → error stays hidden and empty.
+    expect(error.style.display).toBe('none');
+    expect(error.textContent).toBe('');
+    expect(wrapper.textContent).not.toContain('Required');
+  });
 });

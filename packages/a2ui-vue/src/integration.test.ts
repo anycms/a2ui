@@ -139,8 +139,41 @@ describe('integration: action context scoping (List template)', () => {
   });
 });
 
-describe('integration: focus preservation', () => {
-  it('typing in a TextField preserves focus (no re-mount on self-emit)', async () => {
+describe('integration: check message rendering', () => {
+  it('a failed check renders its message under a TextField', async () => {
+    const mp = setup([
+      { version: 'v1.0', createSurface: { surfaceId: 's', catalogId: basicCatalogId } },
+      {
+        version: 'v1.0',
+        updateComponents: {
+          surfaceId: 's',
+          components: [
+            {
+              id: 'root',
+              component: 'TextField',
+              label: 'Name',
+              checks: [{ condition: false, message: 'Name is required' }],
+            },
+          ],
+        },
+      },
+    ]);
+    const surface = mp.model.get('s')!;
+    const { host, unmount } = mount(surface);
+
+    // before flush the reactive DOM may not yet show the message
+    await nextTick();
+    expect(host.textContent).toContain('Name is required');
+
+    // the message lives in a styled sibling directly after the input
+    const errEl = host.querySelector<HTMLDivElement>('.a2ui-check-error')!;
+    expect(errEl).toBeTruthy();
+    expect(errEl.style.color).toBe('rgb(220, 38, 38)');
+    unmount();
+  });
+});
+
+describe('integration: focus preservation', () => {  it('typing in a TextField preserves focus (no re-mount on self-emit)', async () => {
     const mp = setup([
       { version: 'v1.0', createSurface: { surfaceId: 's', catalogId: basicCatalogId, dataModel: { name: '' } } },
       { version: 'v1.0', updateComponents: { surfaceId: 's', components: [{ id: 'root', component: 'TextField', value: { path: '/name' } }] } },

@@ -1,6 +1,6 @@
 import type { CheckBoxProps } from '@anycms/a2ui-core';
 import type { DomNodeMount, DomView, DomViewContext } from '../types';
-import { boundPath, LEAF_MARGIN } from '../helpers';
+import { boundPath, LEAF_MARGIN, applyCheckError, createCheckErrorEl } from '../helpers';
 
 /**
  * CheckBox leaf: `<label.a2ui-leaf>` wrapping a native checkbox + label span.
@@ -14,19 +14,25 @@ export const checkBoxView: DomView<CheckBoxProps> = {
     label.style.margin = `${LEAF_MARGIN}px`;
     label.style.display = 'flex';
     label.style.alignItems = 'center';
+    label.style.flexWrap = 'wrap';
     label.style.gap = '6px';
 
     const input = document.createElement('input');
     input.type = 'checkbox';
 
     const span = document.createElement('span');
+    const errorEl = createCheckErrorEl();
+    // Full-width so the error wraps below the checkbox+label row.
+    errorEl.style.flexBasis = '100%';
 
     label.appendChild(input);
     label.appendChild(span);
+    label.appendChild(errorEl);
 
     const apply = (p: CheckBoxProps): void => {
       input.checked = p.value;
       span.textContent = p.label ?? '';
+      applyCheckError(errorEl, p.checks);
     };
 
     apply(props);
