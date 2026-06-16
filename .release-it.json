@@ -30,7 +30,8 @@
         { "file": "packages/a2ui-react/package.json", "type": "json:/version" },
         { "file": "packages/a2ui-react-shadcn/package.json", "type": "json:/version" },
         { "file": "packages/a2ui-transport-sse/package.json", "type": "json:/version" },
-        { "file": "packages/a2ui-vue/package.json", "type": "json:/version" }
+        { "file": "packages/a2ui-vue/package.json", "type": "json:/version" },
+        { "file": "packages/a2ui-angular/package.json", "type": "json:/version" }
       ]
     }
   }

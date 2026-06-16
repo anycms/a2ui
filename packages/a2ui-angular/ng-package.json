@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/angular/angular/main/packages/ng-packagr/ng-package.schema.json",
+  "allowedNonPeerDependencies": ["@anycms/a2ui-core"],
+  "lib": {
+    "entryFile": "src/public-api.ts"
+  }
+}

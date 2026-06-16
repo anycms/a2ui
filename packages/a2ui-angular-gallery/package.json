@@ -1,0 +1,40 @@
+{
+  "name": "@anycms/a2ui-angular-gallery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive Angular gallery / dev sandbox for the A2UI v1.0 renderer packages.",
+  "license": "MIT",
+  "author": "Liangdi <wu@liangdi.me>",
+  "homepage": "https://github.com/anycms/a2ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anycms/a2ui.git",
+    "directory": "packages/a2ui-angular-gallery"
+  },
+  "bugs": {
+    "url": "https://github.com/anycms/a2ui/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "ng serve",
+    "build": "ng build",
+    "typecheck": "ng build --configuration development",
+    "preview": "ng build --configuration development"
+  },
+  "dependencies": {
+    "@anycms/a2ui-angular": "workspace:*",
+    "@anycms/a2ui-core": "workspace:*",
+    "@anycms/a2ui-dom": "workspace:*",
+    "@anycms/a2ui-transport-sse": "workspace:*",
+    "@angular/common": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.0.0",
+    "@angular/cli": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "typescript": "5.9.3"
+  }
+}

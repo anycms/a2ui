@@ -1,0 +1,50 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #0d1117; color: #c9d1d9; }
+.app { max-width: 1200px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 20px; margin: 0 0 12px; }
+h2 { font-size: 14px; color: #58a6ff; margin: 0 0 8px; }
+.controls { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+fieldset { border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; }
+legend { color: #8b949e; font-size: 12px; padding: 0 4px; }
+input, button {
+  font: inherit;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #c9d1d9;
+}
+button { cursor: pointer; background: #21262d; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.status { color: #8b949e; }
+.grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+section {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 300px;
+}
+.surface-pane { background: #0d1117; border-radius: 6px; padding: 8px; }
+.muted { color: #6e7681; font-style: italic; }
+.json { white-space: pre-wrap; word-break: break-word; font-size: 12px; margin: 0; }
+.actions { list-style: none; padding: 0; margin: 0; }
+.actions li { padding: 4px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
+code { color: #79c0ff; }
+select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9; }
+.ex-desc { color: #8b949e; font-size: 12px; margin-top: 6px; font-style: italic; }
+/* Inputs rendered inside A2UI surfaces inherit the dark theme. */
+.surface-pane input, .surface-pane textarea {
+  background: #0d1117;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}

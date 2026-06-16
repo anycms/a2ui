@@ -2,7 +2,7 @@
 
 > **语言：** **简体中文** | [English](./README_en.md)
 
-**[A2UI](https://github.com/a2ui-project/a2ui) v1.0** 的 TypeScript 实现 —— 一种服务端驱动的 UI 协议：服务端以流式方式下发组件描述与数据，由一个轻量客户端完成渲染。本仓库提供：框架无关的核心层、可替换预设的 React 与 Vue 3 渲染器、框架无关的原生 DOM 渲染器、SSE 传输层，以及可在线运行的示例 gallery。v1.0 协议规范内置于 [`a2ui/specification/`](./a2ui/specification)。
+**[A2UI](https://github.com/a2ui-project/a2ui) v1.0** 的 TypeScript 实现 —— 一种服务端驱动的 UI 协议：服务端以流式方式下发组件描述与数据，由一个轻量客户端完成渲染。本仓库提供：框架无关的核心层、可替换预设的 React / Vue 3 / Angular 渲染器、框架无关的原生 DOM 渲染器、SSE 传输层，以及可在线运行的示例 gallery。v1.0 协议规范内置于 [`a2ui/specification/`](./a2ui/specification)。
 
 > 规范状态：**v1.0 候选版**（趋于稳定；仅在很高门槛下才接受破坏性变更）。
 
@@ -17,9 +17,11 @@
 | [`@anycms/a2ui-react`](./packages/a2ui-react) | React 适配器：`createReactComponent`、`<A2uiSurface>`，以及 18 个基础目录（basic catalog）的 **vanilla** 视图。 | ✅ |
 | [`@anycms/a2ui-react-shadcn`](./packages/a2ui-react-shadcn) | **shadcn/ui 预设** —— 同样 18 个组件，使用 Radix UI + Tailwind 重新换肤（cva + tailwind-merge + lucide）。 | ✅ |
 | [`@anycms/a2ui-vue`](./packages/a2ui-vue) | **Vue 3 渲染器** —— `createVueComponent`、`<A2uiSurface>`，以及 18 个基础目录的 vanilla 视图（以 Vue 组件形式）。 | ✅ |
+| [`@anycms/a2ui-angular`](./packages/a2ui-angular) | **Angular 21 渲染器** —— `<a2ui-surface>`、`A2uiBoundComponent`（binder → signal 桥接），以及 18 个 standalone、zoneless、signal 驱动的 vanilla 视图。 | ✅ |
 | [`@anycms/a2ui-transport-sse`](./packages/a2ui-transport-sse) | SSE 传输适配器：将后端接入 `MessageProcessor`（客户端 → 服务端 → 客户端 action 的闭环）。 | ✅ |
 | [`@anycms/a2ui-gallery`](./packages/a2ui-gallery) | Vite 三栏示例应用：官方示例离线单步回放 + 实时 SSE，可在 Vanilla/shadcn/DOM 之间切换。 | ❌ `private` |
 | [`@anycms/a2ui-vue-gallery`](./packages/a2ui-vue-gallery) | Vite **Vue 3** 示例应用：同样的离线示例 + 实时 SSE，可在 Vue/DOM 渲染器之间切换。 | ❌ `private` |
+| [`@anycms/a2ui-angular-gallery`](./packages/a2ui-angular-gallery) | **Angular CLI** 示例应用（zoneless）：同样的离线示例 + 实时 SSE，可在 Angular/DOM 渲染器之间切换。 | ❌ `private` |
 
 ## 快速开始
 
@@ -104,6 +106,32 @@ const surface = processor.model.get('primary')!;
 
 每个被绑定的节点自行订阅结构事件，因此组件类型变化会重建其绑定、迟到的子组件会自动挂载 —— 无需顶层强制重渲染。输入框保持焦点（Vue 运行时会保护 `value` 属性），`Tabs`/`Modal` 保留本地 UI 状态。
 
+### Angular 渲染器
+
+对于 Angular 宿主环境，`@anycms/a2ui-angular` 用原生 standalone 组件渲染同样的消息流，全程 **zoneless + signal 驱动**（Angular 21 默认）。`A2uiBoundComponent` 把核心 binder 的 `propsStream` 桥接成一个 signal；每个被绑定节点自行订阅结构事件，因此组件类型变化会重建其绑定、迟到的子组件会自动挂载。
+
+```ts
+import { Component } from '@angular/core';
+import { MessageProcessor, basicCatalog } from '@anycms/a2ui-core';
+import { A2uiSurfaceComponent } from '@anycms/a2ui-angular';
+
+const processor = new MessageProcessor({ catalogs: [basicCatalog] });
+processor.processMessages(serverMessages);
+const surface = processor.model.get('primary')!;
+
+@Component({
+  selector: 'app-demo',
+  standalone: true,
+  imports: [A2uiSurfaceComponent],
+  template: `<a2ui-surface [surface]="surface" />`,
+})
+export class DemoComponent {
+  surface = surface;
+}
+```
+
+`@anycms/a2ui-core` 与 `@angular/core`（`^21`）、`rxjs` 为 peer 依赖；zoneless 是默认，无需 `zone.js`。
+
 ### SSE 传输层
 
 ```ts
@@ -136,9 +164,9 @@ pnpm build      # 构建所有可发布的包
 
 版本号由 [release-it](https://github.com/release-it/release-it) 统一编排；
 changelog 由 [git-cliff](https://git-cliff.org)（[`cliff.toml`](./cliff.toml)）生成。
-六个可发布的包采用**锁定步进（lockstep）**版本（共享同一个版本号）；
-`@anycms/a2ui-gallery` 与 `@anycms/a2ui-vue-gallery` 为私有包，不参与。发布时，release-it
-提升版本号（`@release-it/bumper` 写入全部六个 `package.json`），通过 `git cliff` 重新生成
+七个可发布的包采用**锁定步进（lockstep）**版本（共享同一个版本号）；
+`@anycms/a2ui-gallery`、`@anycms/a2ui-vue-gallery` 与 `@anycms/a2ui-angular-gallery` 为私有包，不参与。发布时，release-it
+提升版本号（`@release-it/bumper` 写入全部七个 `package.json`），通过 `git cliff` 重新生成
 [`CHANGELOG.md`](./CHANGELOG.md)，然后提交、打 tag（`v<version>`）并推送。
 
 ```bash
@@ -164,9 +192,11 @@ anycms-a2ui/
 │  ├─ a2ui-react/            # React 适配器 + vanilla 预设
 │  ├─ a2ui-react-shadcn/     # shadcn/ui 预设
 │  ├─ a2ui-vue/              # Vue 3 渲染器（vanilla 预设）
+│  ├─ a2ui-angular/         # Angular 21 渲染器（zoneless + signals）
 │  ├─ a2ui-transport-sse/    # SSE 传输层
 │  ├─ a2ui-gallery/          # React 示例应用（私有）
-│  └─ a2ui-vue-gallery/      # Vue 示例应用（私有）
+│  ├─ a2ui-vue-gallery/      # Vue 示例应用（私有）
+│  └─ a2ui-angular-gallery/  # Angular 示例应用（私有）
 └─ a2ui/specification/v1_0/  # 内置的 A2UI v1.0 规范（json / docs / catalogs / test / eval）
 ```
 

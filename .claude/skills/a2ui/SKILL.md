@@ -26,7 +26,7 @@ model**; the client binds and renders them. The protocol spec is vendored and
 authoritative — when a question is "what should this do?", the answer is in
 `a2ui/specification/v1_0/`.
 
-This repo ships **seven pnpm workspace packages** (scope `@anycms`):
+This repo ships **nine pnpm workspace packages** (scope `@anycms`):
 
 | Package | Layer | Role |
 | --- | --- | --- |
@@ -34,9 +34,11 @@ This repo ships **seven pnpm workspace packages** (scope `@anycms`):
 | `packages/a2ui-react` | View (React adapter) | `createReactComponent`, `<A2uiSurface>`, `A2uiNode`, and the 18 **vanilla** Views + `basicReactComponents` registry. |
 | `packages/a2ui-react-shadcn` | View (preset) | Same 18 components re-skinned with Radix + Tailwind (`shadcnReactComponents`). |
 | `packages/a2ui-vue` | View (Vue 3 adapter) | `createVueComponent`, `<A2uiSurface>`, `A2uiNode`, and the 18 vanilla Views as Vue render-function components + `basicVueComponents` registry. Mirrors the React adapter shape; plain `.ts` (no SFCs/vue-tsc needed for the lib). Stateful Views (`Tabs`/`Modal`) use an internal `defineComponent`. |
+| `packages/a2ui-angular` | View (Angular 21 adapter) | `<a2ui-surface>`, `<a2ui-node>`, `A2uiBoundComponent` (binder→signal bridge), and the 18 vanilla Views as standalone, **zoneless, signal-driven** components + `basicAngularComponents` registry (`Map<type,{binder,view}>`). Built with **ng-packagr** (`tsconfig.lib.json` is self-contained, `moduleResolution: node`, `OnPush` omitted because Angular 21's chunked `ChangeDetectionStrategy` type breaks ng-packagr's partial evaluator under zoneless). |
 | `packages/a2ui-transport-sse` | Transport | `SseA2uiTransport` — SSE in, action POST out. |
 | `packages/a2ui-gallery` | Demo (private) | Vite app: offline example step-through + live SSE + Vanilla/shadcn/DOM toggle. |
 | `packages/a2ui-vue-gallery` | Demo (private) | Vue 3 Vite app: offline examples + live SSE + Vue/DOM toggle. |
+| `packages/a2ui-angular-gallery` | Demo (private) | Angular CLI app (zoneless): offline examples + live SSE + Angular/DOM toggle. `tsconfig.app.json` is **self-contained** (the library-oriented base's `declaration:true` poisons the app builder's type-check program). |
 
 ## Mental model (read this first)
 
@@ -69,8 +71,8 @@ DateTimeInput, ChoicePicker, Slider`.
 
 - **Add or modify a Basic Catalog component** (new prop, new component, fix a
   binding) → [`reference/components.md`](./reference/components.md). This is the
-  single most common task; it touches core (binder) + both view packages +
-  both registries.
+  single most common task; it touches core (binder) + **all three** view packages
+  (React, Vue, Angular) + their registries.
 - **Understand the data flow, reactivity, or where something lives** →
   [`reference/architecture.md`](./reference/architecture.md).
 - **Create a new look-and-feel** (MUI, Chakra, a brand kit…) →
@@ -89,13 +91,28 @@ DateTimeInput, ChoicePicker, Slider`.
 pnpm install          # first time only (Node ≥ 20, pnpm 10)
 pnpm typecheck        # tsc --noEmit across all packages   ← run after every change
 pnpm test             # vitest run across all packages
-pnpm build            # tsup for libs, vite for gallery
-pnpm dev              # gallery on http://localhost:5173
+pnpm build            # tsup for libs, ng-packagr for a2ui-angular, vite/ng for galleries
+pnpm dev              # React gallery on http://localhost:5173
 pnpm clean            # rm dist + .tsbuildinfo
 ```
 
 Single package: `pnpm --filter @anycms/a2ui-core test`, etc. Tests are
 colocated as `*.test.ts` / `*.test.tsx` next to source.
+
+**Angular package specifics** (`packages/a2ui-angular`):
+- Build/typecheck is `ng-packagr -c tsconfig.lib.json` (AOT; this is the
+  authoritative typecheck — templates are checked here, not by plain `tsc`).
+  `tsconfig.lib.json` must stay self-contained with `moduleResolution: "node"`
+  (bundler breaks ng-packagr's resolution of `@anycms/a2ui-core`) and **no**
+  `OnPush` (Angular 21's chunked `ChangeDetectionStrategy` type fails ng-packagr's
+  partial evaluator; zoneless CD makes `OnPush` unnecessary anyway).
+- Tests (`pnpm --filter @anycms/a2ui-angular test`) run vitest + `TestBed` (JIT,
+  zoneless) **against the built `dist`** (a `pretest` hook builds first). Don't
+  import component source in tests — vitest's esbuild JIT transform doesn't
+  register signal `input()` fields, so always import from `@anycms/a2ui-angular`.
+- The gallery (`packages/a2ui-angular-gallery`) `typecheck`/`build` is
+  `ng build`; its `tsconfig.app.json` is self-contained because the repo base's
+  `declaration: true` poisons the application builder's type-check program.
 
 ## Non-negotiable conventions
 
@@ -130,10 +147,11 @@ These bite if ignored — verify each applies to your change:
 
 | Task | Files touched |
 | --- | --- |
-| Add Basic Catalog component | core `catalogs/basic/index.ts` (+ export); react `components.tsx` + `registry.ts`; shadcn `components/<x>.tsx` + `registry.ts`; test in each |
+| Add Basic Catalog component | core `catalogs/basic/index.ts` (+ export); react `components.tsx` + `registry.ts`; shadcn `components/<x>.tsx` + `registry.ts`; angular `components.ts` (a `@Component` View with `props`/`ctx` signal inputs) + `registry.ts`; test in each |
 | Tweak an existing component's binding | core binder only (+ its test) |
-| New prop on existing component | binder + both Views + props interfaces |
+| New prop on existing component | binder + all three Views (React/Vue/Angular) + props interfaces |
 | New preset | new package cloning `a2ui-react-shadcn` (see presets.md) |
+| New framework adapter | new package mirroring `a2ui-vue`/`a2ui-angular`: a binder→framework bridge, a recursive node unit, a `<surface>` entry, the 18 Views, a registry `Map`, and a parallel gallery |
 | Custom catalog/function | new module + `new Catalog({...})` (see catalogs.md) |
 | New transport | new package mirroring `a2ui-transport-sse` |
 
