@@ -1,6 +1,6 @@
 {
   "name": "@anycms/a2ui-core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A2UI v1.0 framework-agnostic core: reactive primitives, JSON Pointer, data model, state models, message processor, catalog, basic functions.",
   "license": "MIT",
   "author": "Liangdi <wu@liangdi.me>",

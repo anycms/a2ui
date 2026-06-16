@@ -1,6 +1,6 @@
 {
   "name": "@anycms/a2ui-dom",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Framework-agnostic vanilla-DOM renderer for A2UI v1.0 (zero UI-framework dependency).",
   "license": "MIT",
   "author": "Liangdi <wu@liangdi.me>",
