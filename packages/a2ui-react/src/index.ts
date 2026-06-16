@@ -11,5 +11,5 @@ export type {
   ReactComponentRegistry,
   SurfaceContextValue,
 } from './adapter';
-export { basicReactComponents } from './registry';
+export { basicReactComponents, mergeRegistries } from './registry';
 export * from './components';

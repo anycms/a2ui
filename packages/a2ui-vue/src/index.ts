@@ -15,5 +15,5 @@ export type {
   VueComponentRegistry,
   SurfaceContextValue,
 } from './adapter';
-export { basicVueComponents } from './registry';
+export { basicVueComponents, mergeRegistries } from './registry';
 export * from './components';

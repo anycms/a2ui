@@ -13,7 +13,7 @@ import {
 // Import the AOT-compiled components from the built package (dist), not the
 // source: vitest's esbuild JIT transform doesn't register signal `input()`
 // fields as component inputs, so we test against the ng-packagr AOT artifact.
-import { A2uiSurfaceComponent, basicAngularComponents } from '@anycms/a2ui-angular';
+import { A2uiSurfaceComponent, basicAngularComponents, mergeRegistries } from '@anycms/a2ui-angular';
 import type { AngularRegistryEntry } from '@anycms/a2ui-angular';
 
 let envReady = false;
@@ -45,8 +45,10 @@ export interface AngularMount {
  */
 export function mount(surface: SurfaceModel, extra?: Record<string, AngularRegistryEntry>): AngularMount {
   ensureEnv();
-  const registry: Map<string, AngularRegistryEntry> = new Map(basicAngularComponents);
-  if (extra) for (const [type, entry] of Object.entries(extra)) registry.set(type, entry);
+  const registry = mergeRegistries(
+    basicAngularComponents,
+    new Map(extra ? Object.entries(extra) : []),
+  );
   // vitest doesn't run Angular's auto-reset-between-tests, so reset explicitly
   // before each configure (otherwise "module already instantiated" errors).
   TestBed.resetTestingModule();

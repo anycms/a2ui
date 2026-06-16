@@ -93,3 +93,7 @@ carry 8px; containers flush). shadcn uses **Tailwind classes** + Radix. Your
 preset may use either — just be consistent within the package and keep the
 `a2ui-leaf` / `a2ui-row` / `a2ui-column` / `a2ui-surface` class hooks where
 reasonable, so gallery CSS and tests that key off them still apply.
+
+For re-skinning an *existing* preset (brand colors, multi-tenant themes, the
+`--primary` vs `--color-*` token story), see [theming.md](./theming.md) — that's
+host-side CSS + `mergeRegistries` overrides, not a new package.

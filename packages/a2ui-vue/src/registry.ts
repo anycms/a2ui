@@ -61,3 +61,10 @@ export const basicVueComponents: VueComponentRegistry = new Map([
   ['ChoicePicker', createVueComponent(choicePickerBinder, ChoicePickerView)],
   ['Slider', createVueComponent(sliderBinder, SliderView)],
 ]);
+
+/**
+ * Merge registries into a new `ReadonlyMap`; later args override earlier by
+ * component `type`. Inputs are not mutated. Generic — re-exported from
+ * `@anycms/a2ui-core`; the value type is inferred from the args.
+ */
+export { mergeRegistries } from '@anycms/a2ui-core';

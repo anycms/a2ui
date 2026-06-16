@@ -1,14 +1,27 @@
 /**
- * Canonical shadcn/ui CSS variables for @anycms/a2ui-react-shadcn consumers.
+ * Optional default theme for @anycms/a2ui-react-shadcn, written for Tailwind v4.
  *
- * Import this once in your app entry (e.g. `import '@anycms/a2ui-react-shadcn/styles.css'`)
- * AFTER your Tailwind import. It defines the `--background`, `--primary`, ... tokens that
- * the renderer's utility classes (bg-primary, text-muted-foreground, ...) resolve to.
+ * Import once in your app entry AFTER `@import "tailwindcss"`:
  *
- * This is the standard shadcn "default" theme (zinc). Copy and adjust freely.
+ *   import '@anycms/a2ui-react-shadcn/styles.css';
+ *
+ * The shadcn Views emit token-neutral Tailwind utilities (`bg-primary`,
+ * `text-muted-foreground`, `border-border`, …). This stylesheet resolves them:
+ *
+ *   - `@theme inline` maps the shadcn HSL tokens onto Tailwind's `--color-*`
+ *     namespace, so the utilities compile.
+ *   - The token VALUES live under an OPT-IN class (not bare `:root`): add
+ *     `.a2ui-shadcn-default-theme` to a wrapping element to opt into the zinc
+ *     default; add `.a2ui-dark` alongside it for dark mode.
+ *
+ * Don't want the default theme? Don't add the class (or don't import this file
+ * at all) and define your own `--primary` / `--color-*` tokens — the preset
+ * follows whatever the host provides. See reference/theming.md.
  */
 
-:root {
+/* shadcn "default" theme (zinc). HSL channel values; consumed via hsl(var(--*)).
+ * Opt in with `.a2ui-shadcn-default-theme`; pair with `.a2ui-dark` for dark. */
+.a2ui-shadcn-default-theme {
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
   --card: 0 0% 100%;
@@ -31,7 +44,7 @@
   --radius: 0.5rem;
 }
 
-.dark {
+.a2ui-shadcn-default-theme.a2ui-dark {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
   --card: 240 10% 3.9%;
@@ -51,4 +64,40 @@
   --border: 240 3.7% 15.9%;
   --input: 240 3.7% 15.9%;
   --ring: 240 4.9% 83.9%;
+}
+
+/* Map shadcn HSL tokens onto Tailwind v4's `--color-*` namespace so utilities
+ * like `bg-primary`, `text-muted-foreground`, `border-border` resolve. `inline`
+ * keeps the `hsl(var(--*))` reference and resolves it per-element at runtime —
+ * so the colors only render inside `.a2ui-shadcn-default-theme`. */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* Critical shadcn base: bare `border` utilities need a default border-color. */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
 }

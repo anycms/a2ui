@@ -31,7 +31,7 @@ This repo ships **nine pnpm workspace packages** (scope `@anycms`):
 | Package | Layer | Role |
 | --- | --- | --- |
 | `packages/a2ui-core` | Data (framework-agnostic) | Reactivity (`Signal`/`Computed`/`EventSource`/`batch`), JSON-Pointer, `DataModel`, component models, dynamic-value resolution, Zod schema, **binders**, **catalogs**, `MessageProcessor`. |
-| `packages/a2ui-react` | View (React adapter) | `createReactComponent`, `<A2uiSurface>`, `A2uiNode`, and the 18 **vanilla** Views + `basicReactComponents` registry. |
+| `packages/a2ui-react` | View (React adapter) | `createReactComponent`, `<A2uiSurface>`, `A2uiNode`, `mergeRegistries`, and the 18 **vanilla** Views + `basicReactComponents` registry. |
 | `packages/a2ui-react-shadcn` | View (preset) | Same 18 components re-skinned with Radix + Tailwind (`shadcnReactComponents`). |
 | `packages/a2ui-vue` | View (Vue 3 adapter) | `createVueComponent`, `<A2uiSurface>`, `A2uiNode`, and the 18 vanilla Views as Vue render-function components + `basicVueComponents` registry. Mirrors the React adapter shape; plain `.ts` (no SFCs/vue-tsc needed for the lib). Stateful Views (`Tabs`/`Modal`) use an internal `defineComponent`. |
 | `packages/a2ui-angular` | View (Angular 21 adapter) | `<a2ui-surface>`, `<a2ui-node>`, `A2uiBoundComponent` (binder→signal bridge), and the 18 vanilla Views as standalone, **zoneless, signal-driven** components + `basicAngularComponents` registry (`Map<type,{binder,view}>`). Built with **ng-packagr** (`tsconfig.lib.json` is self-contained, `moduleResolution: node`, `OnPush` omitted because Angular 21's chunked `ChangeDetectionStrategy` type breaks ng-packagr's partial evaluator under zoneless). |
@@ -77,6 +77,9 @@ DateTimeInput, ChoicePicker, Slider`.
   [`reference/architecture.md`](./reference/architecture.md).
 - **Create a new look-and-feel** (MUI, Chakra, a brand kit…) →
   [`reference/presets.md`](./reference/presets.md). Copy the shadcn package.
+- **Re-skin or multi-tenant theme** (brand colors, `--primary` vs `--color-*`,
+  per-tenant tokens) → [`reference/theming.md`](./reference/theming.md). Host
+  CSS + `mergeRegistries`; the preset itself rarely changes.
 - **Make a custom catalog, add a custom function, or wire a non-SSE transport**
   → [`reference/catalogs.md`](./reference/catalogs.md).
 - **Find the protocol truth** → read `a2ui/specification/v1_0/docs/`
@@ -151,6 +154,7 @@ These bite if ignored — verify each applies to your change:
 | Tweak an existing component's binding | core binder only (+ its test) |
 | New prop on existing component | binder + all three Views (React/Vue/Angular) + props interfaces |
 | New preset | new package cloning `a2ui-react-shadcn` (see presets.md) |
+| Theme an existing preset (brand / multi-tenant) | host CSS tokens (no lib change) — see theming.md; or `mergeRegistries(base, overrides)` (`a2ui-react/src/registry.ts`); or `<A2uiSurface className/style>` token scope |
 | New framework adapter | new package mirroring `a2ui-vue`/`a2ui-angular`: a binder→framework bridge, a recursive node unit, a `<surface>` entry, the 18 Views, a registry `Map`, and a parallel gallery |
 | Custom catalog/function | new module + `new Catalog({...})` (see catalogs.md) |
 | New transport | new package mirroring `a2ui-transport-sse` |

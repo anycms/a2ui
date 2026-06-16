@@ -13,3 +13,4 @@ export * from './functions';
 export * from './catalog';
 export * from './catalogs/basic';
 export * from './message-processor';
+export * from './registry';

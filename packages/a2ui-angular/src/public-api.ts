@@ -12,7 +12,7 @@ export type {
   AngularRegistryEntry,
   AngularComponentRegistry,
 } from './lib/adapter/types';
-export { basicAngularComponents } from './lib/registry';
+export { basicAngularComponents, mergeRegistries } from './lib/registry';
 export {
   TextViewComponent,
   ImageViewComponent,

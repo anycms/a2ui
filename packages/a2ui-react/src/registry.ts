@@ -61,3 +61,14 @@ export const basicReactComponents: ReactComponentRegistry = new Map([
   ['ChoicePicker', createReactComponent(choicePickerBinder, ChoicePickerView)],
   ['Slider', createReactComponent(sliderBinder, SliderView)],
 ]);
+
+/**
+ * Merge registries into a new `ReadonlyMap`; later args override earlier by
+ * component `type`. Inputs are not mutated. Generic — re-exported from
+ * `@anycms/a2ui-core`; passing `ReactComponentRegistry` maps infers a
+ * `ReactComponentRegistry` result.
+ *
+ * @example
+ *   const branded = mergeRegistries(basicReactComponents, brandOverrides);
+ */
+export { mergeRegistries } from '@anycms/a2ui-core';
