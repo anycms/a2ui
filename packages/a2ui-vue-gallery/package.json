@@ -1,0 +1,36 @@
+{
+  "name": "@anycms/a2ui-vue-gallery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive Vue 3 gallery / dev sandbox for the A2UI v1.0 renderer packages.",
+  "license": "MIT",
+  "author": "Liangdi <wu@liangdi.me>",
+  "homepage": "https://github.com/anycms/a2ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anycms/a2ui.git",
+    "directory": "packages/a2ui-vue-gallery"
+  },
+  "bugs": {
+    "url": "https://github.com/anycms/a2ui/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@anycms/a2ui-core": "workspace:*",
+    "@anycms/a2ui-dom": "workspace:*",
+    "@anycms/a2ui-transport-sse": "workspace:*",
+    "@anycms/a2ui-vue": "workspace:*",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.0",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.2.0"
+  }
+}
