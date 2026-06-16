@@ -26,15 +26,17 @@ model**; the client binds and renders them. The protocol spec is vendored and
 authoritative — when a question is "what should this do?", the answer is in
 `a2ui/specification/v1_0/`.
 
-This repo ships **five pnpm workspace packages** (scope `@anycms`):
+This repo ships **seven pnpm workspace packages** (scope `@anycms`):
 
 | Package | Layer | Role |
 | --- | --- | --- |
 | `packages/a2ui-core` | Data (framework-agnostic) | Reactivity (`Signal`/`Computed`/`EventSource`/`batch`), JSON-Pointer, `DataModel`, component models, dynamic-value resolution, Zod schema, **binders**, **catalogs**, `MessageProcessor`. |
 | `packages/a2ui-react` | View (React adapter) | `createReactComponent`, `<A2uiSurface>`, `A2uiNode`, and the 18 **vanilla** Views + `basicReactComponents` registry. |
 | `packages/a2ui-react-shadcn` | View (preset) | Same 18 components re-skinned with Radix + Tailwind (`shadcnReactComponents`). |
+| `packages/a2ui-vue` | View (Vue 3 adapter) | `createVueComponent`, `<A2uiSurface>`, `A2uiNode`, and the 18 vanilla Views as Vue render-function components + `basicVueComponents` registry. Mirrors the React adapter shape; plain `.ts` (no SFCs/vue-tsc needed for the lib). Stateful Views (`Tabs`/`Modal`) use an internal `defineComponent`. |
 | `packages/a2ui-transport-sse` | Transport | `SseA2uiTransport` — SSE in, action POST out. |
-| `packages/a2ui-gallery` | Demo (private) | Vite app: offline example step-through + live SSE + Vanilla/shadcn toggle. |
+| `packages/a2ui-gallery` | Demo (private) | Vite app: offline example step-through + live SSE + Vanilla/shadcn/DOM toggle. |
+| `packages/a2ui-vue-gallery` | Demo (private) | Vue 3 Vite app: offline examples + live SSE + Vue/DOM toggle. |
 
 ## Mental model (read this first)
 
