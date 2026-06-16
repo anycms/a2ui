@@ -122,6 +122,7 @@ export const clientActionSchema = z.object({
     context: z.record(z.string(), z.unknown()),
     wantResponse: z.boolean().optional(),
     actionId: z.string().optional(),
+    responsePath: z.string().optional(),
   }),
 });
 

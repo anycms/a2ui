@@ -100,6 +100,7 @@ export class ComponentContext implements DynamicValueContext {
     context?: Record<string, unknown>;
     wantResponse?: boolean;
     actionId?: string;
+    responsePath?: string;
   }): void {
     this.surface.dispatchAction(payload, this.componentModel.id);
   }

@@ -1,4 +1,5 @@
 import { batch } from '../reactive';
+import type { Subscription } from '../reactive';
 import { Catalog } from '../catalog';
 import {
   SurfaceGroupModel,
@@ -9,6 +10,7 @@ import { DataModel } from '../datamodel';
 import { DataContext } from '../context';
 import type {
   A2uiMessage,
+  ActionResponseMessage,
   CallFunctionMessage,
   ClientEvent,
   CreateSurfaceMessage,
@@ -38,6 +40,16 @@ export interface MessageProcessorOptions {
   readonly catalogs: Catalog[];
   /** Outbound channel for client->server events (functionResponse / error). */
   readonly onClientEvent?: (event: ClientEvent) => void;
+  /**
+   * Called for every actionResponse after the responsePath write-back (if any)
+   * has been applied. Surfaces errors and responsePath-less responses to the
+   * application layer.
+   */
+  readonly onActionResponse?: (r: {
+    actionId: string;
+    value?: unknown;
+    error?: { code: string; message: string };
+  }) => void;
 }
 
 /**
@@ -50,16 +62,43 @@ export class MessageProcessor {
   readonly model = new SurfaceGroupModel();
   private readonly catalogs: Catalog[];
   private readonly onClientEvent?: (event: ClientEvent) => void;
+  private readonly onActionResponse?: MessageProcessorOptions['onActionResponse'];
+
+  /**
+   * actionId → the surface + JSON pointer to write an actionResponse value to.
+   * Populated by subscribing to `model.onAction` for actions carrying both
+   * `responsePath` and `actionId`; drained as responses arrive.
+   */
+  private readonly pendingActionResponses = new Map<
+    string,
+    { surfaceId: string; responsePath: string }
+  >();
+  private actionSub?: Subscription;
 
   constructor(opts: MessageProcessorOptions) {
     this.catalogs = opts.catalogs;
     this.onClientEvent = opts.onClientEvent;
+    this.onActionResponse = opts.onActionResponse;
+    this.actionSub = this.model.onAction.subscribe((action) => {
+      if (action.responsePath !== undefined && action.actionId !== undefined) {
+        this.pendingActionResponses.set(action.actionId, {
+          surfaceId: action.surfaceId,
+          responsePath: action.responsePath,
+        });
+      }
+    });
   }
 
   processMessages(messages: readonly A2uiMessage[]): void {
     batch(() => {
       for (const msg of messages) this.processOne(msg);
     });
+  }
+
+  /** Release the model.onAction subscription. */
+  dispose(): void {
+    this.actionSub?.unsubscribe();
+    this.actionSub = undefined;
   }
 
   private processOne(msg: A2uiMessage): void {
@@ -73,8 +112,21 @@ export class MessageProcessor {
       this.model.deleteSurface((msg as DeleteSurfaceMessage).deleteSurface.surfaceId);
     } else if ('callFunction' in msg) {
       this.processCallFunction(msg as CallFunctionMessage);
+    } else if ('actionResponse' in msg) {
+      this.processActionResponse(msg as ActionResponseMessage);
     }
-    // actionResponse: transport/upper layer matches by actionId; no model effect.
+  }
+
+  private processActionResponse(msg: ActionResponseMessage): void {
+    const pending = this.pendingActionResponses.get(msg.actionId);
+    if (pending) {
+      this.pendingActionResponses.delete(msg.actionId);
+      if (msg.actionResponse.value !== undefined) {
+        const surface = this.model.get(pending.surfaceId);
+        surface?.dataModel.set(pending.responsePath, msg.actionResponse.value);
+      }
+    }
+    this.onActionResponse?.({ actionId: msg.actionId, ...msg.actionResponse });
   }
 
   private findCatalog(catalogId: string): Catalog | undefined {

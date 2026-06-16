@@ -13,6 +13,8 @@ export interface A2uiClientAction {
   context: Record<string, unknown>;
   wantResponse?: boolean;
   actionId?: string;
+  /** JSON pointer the client should write an actionResponse value back to. */
+  responsePath?: string;
 }
 
 export type ComponentProperties = Record<string, unknown>;
@@ -118,7 +120,13 @@ export class SurfaceModel {
 
   /** Dispatch a user action from `sourceComponentId`. */
   dispatchAction(
-    payload: { name: string; context?: Record<string, unknown>; wantResponse?: boolean; actionId?: string },
+    payload: {
+      name: string;
+      context?: Record<string, unknown>;
+      wantResponse?: boolean;
+      actionId?: string;
+      responsePath?: string;
+    },
     sourceComponentId: string,
   ): void {
     const action: A2uiClientAction = {
@@ -130,6 +138,7 @@ export class SurfaceModel {
     };
     if (payload.wantResponse !== undefined) action.wantResponse = payload.wantResponse;
     if (payload.actionId !== undefined) action.actionId = payload.actionId;
+    if (payload.responsePath !== undefined) action.responsePath = payload.responsePath;
     this.onAction.emit(action);
   }
 }

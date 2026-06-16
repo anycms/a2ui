@@ -123,7 +123,9 @@ message. The message kinds and their model effects:
 | `updateDataModel` | `path '/'` → `replaceAll`; else `set(path, value)`; omitted `value` → **delete** the key. |
 | `deleteSurface` | Disposes the surface's data model, clears components, removes. |
 | `callFunction` | Runs a catalog function; if `wantResponse`, emits `functionResponse` (or `error`) via `onClientEvent`. |
-| `actionResponse` | Matched by transport/upper layer by `actionId`; no model effect. |
+| `actionResponse` | If the originating action carried a `responsePath`, writes `value` back to that surface's `dataModel` via the `actionId`→`{surfaceId,responsePath}` map captured at dispatch; always fires `onActionResponse`. |
+
+**Action → response loop:** a View calls `ctx.dispatchAction({ name, wantResponse: true, actionId, responsePath })`. `MessageProcessor` subscribes to `model.onAction` and records `actionId → { surfaceId, responsePath }` for actions carrying both. Transport ships the action to the server (POST); the server's `actionResponse { actionId, value | error }` returns through `processMessages`. The processor matches `actionId` and, given a `responsePath` + `value`, does `surface.dataModel.set(responsePath, value)` — reactively re-rendering anything bound there. Errors and response-less actions go to the optional `onActionResponse` callback. (`callFunction` has no `responsePath`; its `functionResponse` is outbound only, never written back.)
 
 Outbound: `getClientCapabilities()` advertises `supportedCatalogIds`;
 `getClientDataModel()` snapshots surfaces flagged `sendDataModel`.
